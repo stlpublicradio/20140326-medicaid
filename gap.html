@@ -5,7 +5,7 @@
 
 body {
   font: 12px "Titillium Web",sans-serif;
-  width:580px;
+  width:570px;
   height:300px;
 }
 
@@ -82,7 +82,7 @@ var n = 2 // number of layers
     yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 
 var margin = {top: 0, right: 10, bottom: 50, left: 50},
-    width = 580 - margin.left - margin.right,
+    width = 570 - margin.left - margin.right,
     height = 150 - margin.top - margin.bottom;
 
 var y = d3.scale.ordinal()
@@ -123,13 +123,13 @@ layer.selectAll("rect")
     svg.append("text").text("MO").attr("x", -10).attr("y", 32).attr("text-anchor", "end");
     svg.append("text").text("IL").attr("x", -10).attr("y", 75).attr("text-anchor", "end");
     svg.append("text").text("$0").attr("x", 0).attr("y", height + 13).attr("text-anchor", "middle");
-    svg.append("text").text("$11,490").attr("x", 125).attr("y", height + 13).attr("text-anchor", "end");
-    svg.append("text").text("$15,856").attr("x", 174).attr("y", height + 33).attr("text-anchor", "end");
-    svg.append("text").text("$45,960").attr("x", 520).attr("y", height + 13).attr("text-anchor", "end");
+    svg.append("text").text("$11,490").attr("x", 122).attr("y", height + 13).attr("text-anchor", "end");
+    svg.append("text").text("$15,856").attr("x", 172).attr("y", height + 33).attr("text-anchor", "end");
+    svg.append("text").text("$45,960").attr("x", width).attr("y", height + 13).attr("text-anchor", "end");
         
     svg.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", height).attr("id", "line0")
-    svg.append("line").attr("x1", 130).attr("y1", 0).attr("x2", 130).attr("y2", height + 10).attr("id", "line1")
-    svg.append("line").attr("x1", 179).attr("y1", 57).attr("x2", 179).attr("y2", height + 30).attr("id", "line2")
-    svg.append("line").attr("x1", 520).attr("y1", 0).attr("x2", 520).attr("y2", height).attr("id", "line3")
+    svg.append("line").attr("x1", 127).attr("y1", 0).attr("x2", 127).attr("y2", height + 10).attr("id", "line1")
+    svg.append("line").attr("x1", 175).attr("y1", 57).attr("x2", 175).attr("y2", height + 30).attr("id", "line2")
+    svg.append("line").attr("x1", width).attr("y1", 0).attr("x2", width).attr("y2", height).attr("id", "line3")
     </script>
 </body>
