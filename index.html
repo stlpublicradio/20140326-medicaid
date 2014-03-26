@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url(http://fonts.googleapis.com/css?family=Titillium+Web:400,700);
+
+body {
+  font: 12px "Titillium Web",sans-serif;
+  width: 580px;
+}
+
+h1 {
+	font-weight:700;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.legend line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.pie {
+	margin-left:35px;
+}
+
+.pie svg{
+	margin-left:30px;
+}
+
+.pielegend {
+	margin: 0px 0px 25px 130px;
+}
+
+.ill, .mo, .insured, .uninsured {
+	float:left;
+}
+
+div.mo {
+	margin-left: 155px;
+}
+
+.colors {
+	clear:both;
+	margin-left: 60px;
+}
+
+.colors .block {
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+	float:left;
+}
+
+.insured .block {
+	background-color: #a5a585;
+}
+
+.uninsured .block {
+	background-color: #358fb3;
+	margin-left: 20px;
+}
+
+hr {
+	clear:both;
+}
+
+#value_0 {
+	display:none;
+}
+
+</style>
+<body>
+	<div class="title">
+		<h1>Medicaid and the ACA in Illinois and Missouri</h1>
+	</div>
+	<div class="pie"></div>
+	<div class="pielegend">
+		<div class="ill"><h2>Illinois</h2></div>
+		<div class="mo"><h2>Missouri</h2></div>
+		<div class="colors">
+			<div class="insured"><div class="block"></div><span>Insured</span>
+			</div>
+			<div class="uninsured"><div class="block"></div><span>Uninsured</span>
+			</div>
+		</div>
+		</div>
+		<hr>
+		<div class="breakdownlegend">
+			<h2>Uninsured in Missouri and Illinois by status</h2>
+			<p>Of the uninsured in each state (the blue wedge in the pie above), some are eligible for Medicaid, some are eligible for tax credits and some are ineligible for tax credits &mdash; this group includes those who have access to an employer-sponsored plan, who make more than 400% of the federal poverty level, or who are undocumented immigrants.</p>
+			<p>Additionally, because Missouri has not expanded Medicaid, some adults fall into the "coverage gap". This includes adults who are not eligible for Medicaid but don't make enough money to be eligible for tax credits.</p>
+		</div>
+	<div class="breakdown"></div>
+	
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+
+var formatter = d3.format("0,f");
+
+var margin = {top: 20, right: 150, bottom: 30, left: 40},
+    width = 580 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(["#006c8e", "#cc203b", "#358fb3", "#55b7d9"]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".0%"));
+
+var svg = d3.select(".breakdown").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("data.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "State"; }));
+
+  data.forEach(function(d) {
+    var y0 = 0;
+    d.ages = color.domain().map(function(name) { return {name: name, value: +d[name], y0: y0, y1: y0 += +d[name]}; });
+    d.ages.forEach(function(d) { d.y0 /= y0; d.y1 /= y0; });
+  });
+
+  data.sort(function(a, b) { return b.ages[0].y1 - a.ages[0].y1; });
+
+  x.domain(data.map(function(d) { return d.State; }));
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  var state = svg.selectAll(".state")
+      .data(data)
+    .enter().append("g")
+      .attr("class", "state")
+      .attr("transform", function(d) { return "translate(" + x(d.State) + ",0)"; });
+
+  state.selectAll("rect")
+      .data(function(d) { return d.ages; })
+    .enter().append("rect")
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.y1); })
+      .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+      .style("fill", function(d) { return color(d.name); });
+      
+      state.selectAll(".state")
+      .data(function(d) { return d.ages; })
+      .enter().append("g")
+      .append("text")
+      .attr("x", 65)
+      .attr("y", function(d) { return y(d.y1) + ((y(d.y0) - y(d.y1)) / 2); })
+      .attr("id", function(d) { return "value_" + d.value; })
+      .text(function(d) { return formatter(d.value); });
+      
+      svg.select(".state").select
+      
+  var legend = svg.select(".state:last-child").selectAll(".legend")
+      .data(function(d) { return d.ages; })
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d) { return "translate(" + (x.rangeBand() / 2 + 85) + "," + y((d.y0 + d.y1) / 2) + ")"; });
+
+  legend.append("line")
+      .attr("x2", 12);
+
+  legend.append("text")
+      .attr("x", 20)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; });
+      
+});
+
+ var data = [
+ [108193200, 1772000],
+ [4222800, 834000]
+ ];
+ 
+// Define the margin, radius, and color scale. The color scale will be
+// assigned by index, but if you define your data using objects, you could pass
+// in a named field from the data object instead, such as `d.name`. Colors
+// are assigned lazily, so if you want deterministic behavior, define a domain
+// for the color scale.
+var m = 0,
+    r = 90,
+    z = d3.scale.ordinal()
+    .range(["#a5a585", "#358fb3"]);
+ 
+// Insert an svg:svg element (with margin) for each row in our dataset. A
+// child svg:g element translates the origin to the pie center.
+var piesvg = d3.select(".pie").selectAll("svg")
+    .data(data)
+  .enter().append("svg:svg")
+    .attr("width", (r + m) * 2)
+    .attr("height", (r + m) * 2)
+  .append("svg:g")
+    .attr("transform", "translate(" + (r + m) + "," + (r + m) + ")");
+ 
+// The data for each svg:svg element is a row of numbers (an array). We pass
+// that to d3.layout.pie to compute the angles for each arc. These start and end
+// angles are passed to d3.svg.arc to draw arcs! Note that the arc radius is
+// specified on the arc, not the layout.
+piesvg.selectAll("path")
+    .data(d3.layout.pie())
+  .enter().append("svg:path")
+    .attr("d", d3.svg.arc()
+    .innerRadius(r / 2)
+    .outerRadius(r))
+    .style("fill", function(d, i) { return z(i); });
+    
+</script>
